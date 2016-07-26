@@ -1,7 +1,6 @@
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 
 var express = require('./config/express');
-var multer=require('multer');
 var http = require('http');
 
 

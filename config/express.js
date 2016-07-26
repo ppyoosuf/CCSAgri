@@ -5,12 +5,10 @@ var config = require('./config'),
 	compress = require('compression'),
 	bodyParser = require('body-parser'),
 	methodOverride = require('method-override'),
-	passport = require('passport'),
 	session = require('express-session');
-     msopdf = require('../lib');
-     fs= require('fs');
+    fs= require('fs');
     path=require('path');
-    exec = require('child_process').exec;
+
 
 
 module.exports = function() {
@@ -42,9 +40,6 @@ module.exports = function() {
 
   var store = new session.MemoryStore();
 
-  app.use(passport.initialize());
-  app.use(passport.session());
-
   app.use(session({ secret: 'something', store: store }));
 
   app.use(function(req, res, next) {
@@ -56,30 +51,10 @@ module.exports = function() {
 
   app.use(express.static('./public'));
 
-  require('../routes/chat.home.server.routes.js')(app);
-  require('../routes/project.home.server.routes.js')(app);
-  require('../routes/profile.login.server.routes.js')(app);
-  require('../routes/profile.userProfile.server.routes.js')(app);
-  require('../routes/profile.adminProfile.server.routes.js')(app);
-  require('../routes/profile.logout.server.routes')(app);
-  require('../routes/forum.home.server.routes.js')(app);
-  require('../routes/documents.documentManager.server.routes.js')(app);
-  require('../routes/documents.singleFileUpload.server.routes')(app);
-  require('../routes/documents.multipleFileUpload.server.routes')(app);
-  require('../routes/documents.star.server.routes')(app);
-  require('../routes/documents.viewDocument.server.routes')(app);
-  require('../routes/project.projectReg.server.route')(app);
-  require('../routes/waterMark.unRegister.server.route')(app);
 
-  require('../routes/sms.sendMessage.server.routes')(app);
-  require('../routes/sms.group.server.routes')(app);
-  require('../routes/sms.member.server.routes')(app);
-  require('../routes/fb.login.server.routes')(app);
+  /********************************router files*****************************************/
 
- 
 
-  require('../routes/security.server.routes.js')(app);
-  require('../routes/layout.server.routes.js')(app);	//Layout page route
-
+  /********************************router files*****************************************/
   return app;
 };

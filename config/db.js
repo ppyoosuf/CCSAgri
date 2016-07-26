@@ -1,6 +1,3 @@
 module.exports = {
-  host: 'localhost',
-  user: 'root',
-  password: '',
-  database: 'cloudproject'
+  url:'mongodb://localhost:27017/agriculture'
 };

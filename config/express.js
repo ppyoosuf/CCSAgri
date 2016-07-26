@@ -1,4 +1,5 @@
 
+//includes the required libraries
 var config = require('./config'),
 	express = require('express'),
 	morgan = require('morgan'),
@@ -8,6 +9,8 @@ var config = require('./config'),
 	session = require('express-session');
     fs= require('fs');
     path=require('path');
+
+
 
 
 
@@ -53,7 +56,7 @@ module.exports = function() {
 
 
   /********************************router files*****************************************/
-
+ require('../routes/registration.farmer.routes')(app);
 
   /********************************router files*****************************************/
   return app;

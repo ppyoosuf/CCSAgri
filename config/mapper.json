@@ -1,0 +1,31 @@
+{
+  "farmer": {
+    "model":"../models/farmer.server.model.js",
+    "modelName":"farmer",
+    "formModel":"farmer",
+    "schema":"farmerSchema",
+    "fields":[
+        {
+          "formField":"fname",
+          "modelField":"fname"
+        },
+        {
+          "formField":"lname",
+          "modelField":"lname"
+        },
+        {
+          "formField":"location",
+          "modelField":"location"
+        },
+        {
+          "formField":"pin",
+          "modelField":"zip"
+        },
+        {
+          "formField":"mob",
+          "modelField":"mob"
+        }
+      ]
+    }
+
+}

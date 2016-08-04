@@ -12,15 +12,11 @@ mongoose.connect(mngoUrl.url);
 
 // create a schema
 var farmerSchema = new Schema({
-    farmName: { type: String, required: true },
-    farmAge: { type: String, required: true },
-    farmAdd1: { type: String, required: true },
-    farmAdd2: { type: String, required: false },
-    farmState: { type: String, required: true },
-    farmDist: { type: String, required: true },
-    farmZip: { type: String, required: true },
-    regDate: { type: Date, required: true },
-    farmStats: { type: String, required: true }
+    fname: { type: String, required: true },
+    lname: { type: String, required: true },
+    location: { type: String, required: true },
+    zip: { type: String, required: true },
+    mob: { type: String, required: true }
 });
 
 //create the farmer model
@@ -28,3 +24,4 @@ var farmer = mongoose.model('farmer', farmerSchema);
 
 // make this available to our users in our Node applications
 module.exports = farmer;
+

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Registration Form</title>
+    <script type="text/javascript" src="../bower_components/angular/angular.js"></script>
+    <script type="text/javascript" src="app/registration/registration.farmer.controller.js"></script>
+
+
+</head>
+<body ng-app="myApp" ng-controller="registrationCtrl">
+<h1>Registration Form</h1>
+
+<form>
+    <label>First Name</label><input type="text" ng-model="newFarmer.fname">
+    <label>Second Name</label><input type="text" ng-model="newFarmer.lname">
+    <label>Location</label><input type="text" ng-model="newFarmer.location">
+    <button ng-click="register()">Save</button>
+
+</form>
+
+</body>
+</html>

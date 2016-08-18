@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<models>
+    <model>
+        <modelPath>../models/farmer.server.model.js</modelPath>
+        <modelName>farmer</modelName>
+        <schema>farmerSchema</schema>
+        <formModel>framer</formModel>
+        <fields>
+            <formField>fname</formField>
+            <modelField>fname</modelField>
+        </fields>
+        <fields>
+            <formField>lname</formField>
+            <modelField>lname</modelField>
+        </fields>
+        <fields>
+            <formField>location</formField>
+            <modelField>location</modelField>
+        </fields>
+        <fields>
+            <formField>pin</formField>
+            <modelField>zip</modelField>
+        </fields>
+        <fields>
+            <formField>mob</formField>
+            <modelField>mob</modelField>
+        </fields>
+    </model>
+
+
+
+</models>

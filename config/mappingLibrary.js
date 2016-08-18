@@ -2,70 +2,135 @@
  * Created by Administrator on 27.07.2016.
  */
 var fs = require("fs");
+var parseString = require('xml2js').parseString;
 var jsonContent;
-var models=[];
-var obj;
+// var models=[];
+// models.length=0;
+var modelObj=[];
 
-var readMapperFile=function(verifyModel){
-// Get content from file
+var getModel=function(modelName,cb){                                        //load the model files
 
-    fs.stat('./config/mapper.json', function(err, stat) {
+    if(modelName===null || modelName===undefined || modelName===''){
+        appError(new Error("Not a valid value for model/not existing"));
+    }
+        var modelObj = require(modelName);
+        cb(modelObj);
+
+};
+
+var checkDupicate=function(models){
+    var sortedModels = models.slice().sort();
+    var results = [];
+    results.length=0;
+    for (var i = 0; i < models.length - 1; i++) {
+        if (sortedModels[i + 1] == sortedModels[i]) {
+            results.push(sortedModels[i]);
+        }
+    }
+
+    if(results.length > 0)
+        appError(new Error("find Duplicate model Name"));
+};
+var readMapperXMLFile=function(cb){                                          // Get content from  XML file
+    var models=[];
+    models.length=0;
+    fs.stat(__dirname+'/mapper.xml', function(err, stat) {
         if(err == null) {
+            var contents = fs.readFileSync(__dirname+"/mapper.xml");
+            parseString(contents, function (err, result) {
+                    jsonContent=result;
+                    convertToValidJson(result,function(){
+                        // models=Object.keys(jsonContent);
+                        for(var key in jsonContent){
+                            models.push(key)
+                        }
+                        checkDupicate(models);
+                    cb();
+                });
 
-            var contents = fs.readFileSync("./config/mapper.json");
-            jsonContent = JSON.parse(contents);
-
-
-            for(var key in jsonContent){
-                var fieldsValue={};
-                var modelObj=require(jsonContent[key].model);
-                var objSchema=modelObj.schema;
-                for(var i=0;i<jsonContent[key].fields.length;i++){
-                    var modelField=jsonContent[key].fields[i]['modelField'];
-                    fieldsValue[modelField]='';
-                }
-
-                obj=modelObj();
-
-                // modelObj.schema.pre('validate', function(next){
-                //     for(var i=0;i<jsonContent[key].fields.length;i++){
-                //         var modelField=jsonContent[key].fields[i]['modelField'];
-                //         fieldsValue[modelField]='ttttt';
-                //         console.log(fieldsValue);
-                //     }
-                //     console.log(fieldsValue);
-                //     obj.value=modelObj(fieldsValue);
-                //     next();
-                //
-                // });
-                
-                // modelObj(fieldsValue).save(function(err) {
-                //     if (err) throw err;
-                //     console.log("created");
-                // });
-
-
-
-                // modelObj.schema.pre('save',function(next){
-                //     console.log('aveeee');
-                //     next();
-                // });
-                models.push(key);
-
-            }
-
+            });
         } else if(err.code == 'ENOENT') {
-            throw new Error("No /config/mapper.json files")
-        } else {                                                            //some error occured
-            console.log('Some other error: ', err.message);
+            appError(new Error("No /config/mapper.xml files"));
+        } else {                                                             //some error occured
+            appError(new Error(err.message));
             return;
 
         }
-        verifyModel();
     });
 };
 
+var convertToValidJson=function(data,cb){                                      //converting the data to validJON Data
+    var j={};
+    for(var i=0;i<data.models.model.length;i++) {
+        var tModel={};
+        var tFields=[];
+        var modelObj=data.models.model[i];
 
+        if(modelObj.modelPath[0]===null || modelObj.modelPath[0]===undefined ||modelObj.modelPath[0]==='')
+            appError(new Error("invalid XML fields"));
+        if(modelObj.modelName[0]===null || modelObj.modelName[0]===undefined ||modelObj.modelName[0]==='')
+            appError(new Error("invalid XML fields"));
+        if(modelObj.formModel[0]===null || modelObj.formModel[0]===undefined ||modelObj.formModel[0]==='')
+            appError(new Error("invalid XML fields"));
+        if(modelObj.schema[0]===null || modelObj.schema[0]===undefined ||modelObj.schema[0]==='')
+            appError(new Error("invalid XML fields"));
+
+
+        tModel.model=modelObj.modelPath[0];
+        tModel.modelName=modelObj.modelName[0];
+        tModel.formModel=modelObj.formModel[0];
+        tModel.schema=modelObj.schema[0];
+
+        var fields=modelObj.fields;
+            for(var f=0;f<fields.length;f++){
+
+                if(fields[f].formField[0]===null || fields[f].formField[0]===undefined ||fields[f].formField[0]==='')
+                    throw new Error("invalid XML fields");
+                if(fields[f].modelField[0]===null || fields[f].modelField[0]===undefined ||fields[f].modelField[0]==='')
+                    throw new Error("invalid XML fields");
+
+                tFields.push({formField:fields[f].formField[0],modelField:fields[f].modelField[0]});
+
+            }
+
+        tModel.fields=tFields;
+        j[modelObj.modelName[0]]=tModel;
+    }
+    jsonContent=j;
+    console.log(jsonContent);
+    cb();
+
+};
+
+var readMapperFile=function(verifyModel){                                   // Get content from file
+
+    var models=[];
+    models.length=0;
+    fs.stat(__dirname+'/mapper.json', function(err, stat) {
+        if(err == null) {
+
+            var contents = fs.readFileSync(__dirname+"/mapper.json");
+            jsonContent = JSON.parse(contents);
+            for(var key in jsonContent){
+                models.push(key);
+            }
+
+            checkDupicate(models);
+            verifyModel();
+        } else if(err) {
+            readMapperXMLFile(function(){
+                verifyModel();
+            });
+        } else if(err.code == 'ENOENT') {
+            appError(new Error("No /config/mapper.json files"));
+        } else {                                                            //some error occured
+            appError(new Error(err.message));
+            return;
+
+        }
+
+    });
+};
 
 var createObject=function(model){
 
@@ -74,131 +139,59 @@ var createObject=function(model){
 
 };
 
+var create=function(model,formObj,cb){                                      //create function
 
-var verifyModel=function(input){
-
-    for(var inputKey in input){
-        for(var key in jsonContent){
-
-        }
-    }
-};
-
-var create=function(model,formObj,cb){
-    // console.log(jsonContent[model].fields);
-
-    //creating object
     readMapperFile(function(){
-        verifyModel();
-         var modelObj=require(jsonContent[model].model);
-         var newObj;
-         var fieldsValue={};
-         for(var key in formObj){
-             for(var i=0;i<jsonContent[model].fields.length;i++){
-                 var modelField=jsonContent[model].fields[i]['modelField'];
-                 var formField=jsonContent[model].fields[i]['formField'];
-                 fieldsValue[modelField]=formObj[key][formField];
+         getModel(jsonContent[model].model,function(modelObj){
+             var newObj;
+             var fieldsValue={};
+             var objSchema=modelObj.schema;
+
+             for(var key in formObj){
+                 for(var i=0;i<jsonContent[model].fields.length;i++){
+
+                     if(jsonContent[model].fields[i]['modelField']===null || jsonContent[model].fields[i]['modelField']===undefined ||jsonContent[model].fields[i]['modelField']==='')
+                         appError(new Error("invalid model fields"));
+                     if(jsonContent[model].fields[i]['formField']===null || jsonContent[model].fields[i]['formField']===undefined ||jsonContent[model].fields[i]['formField']==='')
+                         appError(new Error("invalid model fields"));
+
+                     var modelField=jsonContent[model].fields[i]['modelField'];
+                     var formField=jsonContent[model].fields[i]['formField'];
+                     fieldsValue[modelField]=formObj[key][formField];
+                 }
+
              }
+             newObj=modelObj(fieldsValue);
+             cb(newObj);
 
-         }
-
-
-         console.log(fieldsValue);
-         newObj=modelObj(fieldsValue);
-        
-         cb(newObj);
-         // newObj.save(function(err) {
-         //     if (err) throw err;
-         //     console.log("created");
-         // });
+         });
     });
-
-
-
 };
 
 var getObject=function(model,cb){
-
     readMapperFile(function(){
-        verifyModel();
-        var modelObj=require(jsonContent[model].model);
-        var objSchema=modelObj.schema;
-        modelObj.schema.pre('find',function(){
-            console.log("list the data");
+        getModel(jsonContent[model].model,function(modelObj){
+            var objSchema=modelObj.schema;
+            cb(modelObj);
         });
-        
-        cb(modelObj);
+        });
 
-    });
 };
 
-// var read=function(model,condition,cb){
-//     var selCondition;
-//     (condition===undefined || condition==='' || condition===null) ? selCondition='':selCondition=condition;
-//     readMapperFile(function() {
-//         verifyModel();
-//         var modelObj=require(jsonContent[model].model);
-//         modelObj.find(selCondition, function (err, data) {
-//             if (err) throw err;
-//             cb(data);
-//         });
-//     });
-// };
-//
-// var update=function(model,condition,updation){
-//
-//     var selCondition;
-//     (condition===undefined || condition==='' || condition===null) ? selCondition='':selCondition=condition;
-//
-//
-//     readMapperFile(function() {
-//         verifyModel();
-//         var modelObj = require(jsonContent[model].model);
-//         modelObj.findOneAndUpdate(selCondition, updation, function (err, user) {
-//             if (err) throw err;
-//         });
-//     });
-// };
-//
-// var exec=function(model,execString){
-//
-//     // var selCondition;
-//     // (condition===undefined || condition==='' || condition===null) ? selCondition='':selCondition=condition;
-//
-//
-//     readMapperFile(function() {
-//         verifyModel();
-//         var modelObj = require(jsonContent[model].model);
-//         var q=model+"."+execString;
-//         console.log(q);
-//         q.exec(function(err, posts) {
-//             console.log(posts);
-//         });
-//
-//     });
-// };
-//
-//
-// var remove=function(model,condition){
-//     var selCondition;
-//     (condition === undefined || condition === '' || condition === null) ? selCondition = '' : selCondition = condition;
-//     readMapperFile(function() {
-//         verifyModel();
-//         var modelObj = require(jsonContent[model].model);
-//         modelObj.find(selCondition, function (err, user) {
-//             if (err) throw err;
-//             modelObj.remove(function (err) {
-//                 if (err) throw err;
-//             });
-//         });
-//     });
-// };
+var appError = function (err) {
+    var name = "Application Error", msg;
+    if ( err instanceof Error ) {
+        msg = err.message;
+        name = "Application Error [" + err.name + "]";
+    } else {
+        msg = err;
+    }
 
+    this.message = msg;
+    this.name = name;
+    console.log('An error occured', this.message);
+
+};
 
 exports.create=create;
-// exports.read=read;
-// exports.update=update;
-// exports.remove=remove;
-// exports.exec=exec;
-exports.readMapperFile=readMapperFile;
 exports.getObject=getObject;

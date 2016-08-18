@@ -1,0 +1,13 @@
+{
+  "name": "ccsagri",
+  "description": "",
+  "main": "index.js",
+  "authors": [
+    "ppyoosuf <pp.yoosuf@gmail.com>"
+  ],
+  "license": "ISC",
+  "homepage": "https://github.com/ppyoosuf/CCSAgri",
+  "dependencies": {
+    "angular": "^1.5.8"
+  }
+}

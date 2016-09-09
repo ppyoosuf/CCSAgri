@@ -4,24 +4,6 @@
 var farmer1=require('../models/farmer.server.model');
 var errorCtrl=require('./error.server.controller');
 
-exports.registerFarmer=function(){
-    var newFarmer=farmer1({
-        fname: 'farmer1',
-        lname: '20',
-        location:'address1',
-        zip: 'address2',
-        mob:'2'
-
-    });
-    console.log(newFarmer);
-//
-//     newFarmer.save(function(err) {
-//         if (err) throw err;
-//
-//         console.log('Farmer created!');
-//     });
-};
-
 exports.home=function(req,res){
     var path=require('path');
     res.sendFile(path.resolve(__dirname+'/../public/app/registration/registration.farmer.html'));

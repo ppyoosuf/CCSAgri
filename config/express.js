@@ -56,7 +56,8 @@ module.exports = function() {
 
 
   /********************************router files*****************************************/
- require('../routes/registration.farmer.routes')(app);
+    require('../routes/registration.farmer.routes')(app);
+    require('../routes/datascrapper.mkisan.routes')(app);
 
 
   /********************************router files*****************************************/
